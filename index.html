@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECON1000 Grade Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      margin-top: 30px;
+      font-size: 1.1em;
+      color: #444;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 15px;
+      background: linear-gradient(to right, #89f7fe, #66a6ff);
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: bold;
+      color: black;
+    }
+
+    .result {
+      margin-top: 25px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>No Limits Tutorial Services</h2>
+    <h3>Coursework & Final Exam Calculator</h3>
+
+    <h3>Quiz Scores (out of 6 each)</h3>
+    <div class="input-group" id="quizInputs">
+      <input type="number" min="0" max="6" placeholder="Quiz 1">
+      <input type="number" min="0" max="6" placeholder="Quiz 2">
+      <input type="number" min="0" max="6" placeholder="Quiz 3">
+      <input type="number" min="0" max="6" placeholder="Quiz 4">
+      <input type="number" min="0" max="6" placeholder="Quiz 5">
+    </div>
+
+    <h3>Midsemester Scores (out of 20)</h3>
+    <div class="input-group" id="midInputs">
+      <input type="number" min="0" max="20" placeholder="Midsem 1">
+      <input type="number" min="0" max="20" placeholder="Midsem 2">
+    </div>
+
+    <button onclick="calculate()">Calculate Coursework & Required Final</button>
+
+    <div class="result" id="courseworkResult"></div>
+    <div class="result" id="requiredFinal"></div>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const quizInputs = Array.from(document.querySelectorAll('#quizInputs input')).map(i => parseFloat(i.value));
+      const midInputs = Array.from(document.querySelectorAll('#midInputs input')).map(i => parseFloat(i.value));
+      const errorMsg = document.getElementById('errorMsg');
+      const courseworkResult = document.getElementById('courseworkResult');
+      const requiredFinal = document.getElementById('requiredFinal');
+
+      errorMsg.textContent = '';
+      courseworkResult.textContent = '';
+      requiredFinal.textContent = '';
+
+      // Validate quiz inputs
+      for (let score of quizInputs) {
+        if (isNaN(score) || score < 0 || score > 6) {
+          errorMsg.textContent = 'Quiz scores must be numbers between 0 and 6.';
+          return;
+        }
+      }
+
+      // Validate midterm inputs
+      for (let score of midInputs) {
+        if (isNaN(score) || score < 0 || score > 20) {
+          errorMsg.textContent = 'Midsemester scores must be numbers between 0 and 20.';
+          return;
+        }
+      }
+
+      // Get best 3 quizzes
+      const bestThree = quizInputs.sort((a, b) => b - a).slice(0, 3);
+      const quizAverage = bestThree.reduce((sum, val) => sum + val, 0) / 18 * 10; // out of 10%
+
+      // Average midterms out of 40%
+      const midAverage = midInputs.reduce((sum, val) => sum + val, 0) / (midInputs.length * 20) * 40;
+
+      const courseworkTotal = quizAverage + midAverage;
+
+      courseworkResult.textContent = `🎯 Coursework Total: ${courseworkTotal.toFixed(2)}%`;
+
+      const neededFinal = Math.max(0, ((50 - courseworkTotal) / 50) * 100).toFixed(2);
+
+      if (courseworkTotal < 50) {
+        requiredFinal.textContent = `📘 Required Final Exam Score to Pass: ${neededFinal}%`;
+      } else {
+        requiredFinal.textContent = `✅ You're already passing with your coursework!`;
+      }
+    }
+  </script>
+</body>
+</html>
