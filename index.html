@@ -26,6 +26,7 @@
     h2 {
       font-size: 1.5em;
       margin-bottom: 10px;
+      font-weight: bold;
     }
 
     h3 {
@@ -89,10 +90,9 @@
       <input type="number" min="0" max="6" placeholder="Quiz 5">
     </div>
 
-    <h3>Midsemester Scores (out of 20)</h3>
+    <h3>Midsemester Score (out of 20)</h3>
     <div class="input-group" id="midInputs">
-      <input type="number" min="0" max="20" placeholder="Midsem 1">
-      <input type="number" min="0" max="20" placeholder="Midsem 2">
+      <input type="number" min="0" max="20" placeholder="Midsem">
     </div>
 
     <button onclick="calculate()">Calculate Coursework & Required Final</button>
@@ -105,7 +105,7 @@
   <script>
     function calculate() {
       const quizInputs = Array.from(document.querySelectorAll('#quizInputs input')).map(i => parseFloat(i.value));
-      const midInputs = Array.from(document.querySelectorAll('#midInputs input')).map(i => parseFloat(i.value));
+      const midInput = parseFloat(document.querySelector('#midInputs input').value);
       const errorMsg = document.getElementById('errorMsg');
       const courseworkResult = document.getElementById('courseworkResult');
       const requiredFinal = document.getElementById('requiredFinal');
@@ -117,34 +117,34 @@
       // Validate quiz inputs
       for (let score of quizInputs) {
         if (isNaN(score) || score < 0 || score > 6) {
-          errorMsg.textContent = 'Quiz scores must be numbers between 0 and 6.';
+          errorMsg.textContent = '⚠️ Quiz scores must be numbers between 0 and 6.';
           return;
         }
       }
 
-      // Validate midterm inputs
-      for (let score of midInputs) {
-        if (isNaN(score) || score < 0 || score > 20) {
-          errorMsg.textContent = 'Midsemester scores must be numbers between 0 and 20.';
-          return;
-        }
+      // Validate midterm input
+      if (isNaN(midInput) || midInput < 0 || midInput > 20) {
+        errorMsg.textContent = '⚠️ Midsemester score must be between 0 and 20.';
+        return;
       }
 
       // Get best 3 quizzes
       const bestThree = quizInputs.sort((a, b) => b - a).slice(0, 3);
-      const quizAverage = bestThree.reduce((sum, val) => sum + val, 0) / 18 * 10; // out of 10%
+      const quizScore = bestThree.reduce((sum, val) => sum + val, 0);
+      const quizPercent = (quizScore / 18) * 10; // out of 10%
 
-      // Average midterms out of 40%
-      const midAverage = midInputs.reduce((sum, val) => sum + val, 0) / (midInputs.length * 20) * 40;
+      // Midsem out of 20, worth 40%
+      const midPercent = (midInput / 20) * 40;
 
-      const courseworkTotal = quizAverage + midAverage;
+      const courseworkTotal = quizPercent + midPercent;
 
       courseworkResult.textContent = `🎯 Coursework Total: ${courseworkTotal.toFixed(2)}%`;
 
-      const neededFinal = Math.max(0, ((50 - courseworkTotal) / 50) * 100).toFixed(2);
+      const totalCourseworkWeight = 50;
+      const neededFinal = ((50 - courseworkTotal) / 50) * 100;
 
       if (courseworkTotal < 50) {
-        requiredFinal.textContent = `📘 Required Final Exam Score to Pass: ${neededFinal}%`;
+        requiredFinal.textContent = `📘 You need ${neededFinal.toFixed(2)}% in the final to pass.`;
       } else {
         requiredFinal.textContent = `✅ You're already passing with your coursework!`;
       }
@@ -152,3 +152,4 @@
   </script>
 </body>
 </html>
+
